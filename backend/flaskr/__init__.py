@@ -1,9 +1,11 @@
 import os
+from config import SQLALCHEMY_DATABASE_URI
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
 from sqlalchemy.orm import load_only
+from sqlalchemy import cast, Integer
 
 from models import setup_db, Question, Category, db
 
@@ -25,11 +27,9 @@ def create_app(test_config=None):
     if test_config is None:
         setup_db(app)  
     else:
-        database_path = test_config.get('SQLALCHEMY_DATABASE_URI')
-        setup_db(app, database_path=database_path)
+        setup_db(app, SQLALCHEMY_DATABASE_URI)
 
     CORS(app, resources={r"/api/*": {"origins": "*"}})
-    app.route('/', methods=['GET'])(lambda: jsonify({'message': 'Hello end-user!'}))
 
     @app.after_request
     def after_request(response):
@@ -47,9 +47,6 @@ def create_app(test_config=None):
     @app.route("/categories", methods=["GET"])
     def categories():
         categories = db.session.query(Category).order_by(Category.id).all()
-
-        if len(categories) == 0:
-            abort(404)
         return jsonify({
             'categories': {
                 category.id: category.type for category in categories
@@ -123,7 +120,11 @@ def create_app(test_config=None):
         selection = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
 
         if search_term is None:
-            abort(400)
+            return jsonify({
+            "questions": [],
+            "total_questions": 0,
+            "success": True
+        })
         search_questions = pagination_questions(request, selection)
         return jsonify({
             "questions": list(search_questions),
@@ -138,14 +139,14 @@ def create_app(test_config=None):
         if category is None:
             abort(404)
         
-        questions = Question.query.filter(Question.category == category_id).all()
+        questions = Question.query.filter(cast(Question.category, Integer) == category_id).all()
         if len(questions) == 0:
             return abort(404)
         format_questions = [question.format() for question in questions]
         return jsonify({
             "questions": format_questions,
             "total_questions": len(format_questions),
-            "current_category": category,
+            "current_category": category.type,
             "success": True
         })
  
