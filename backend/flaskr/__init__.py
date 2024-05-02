@@ -101,7 +101,7 @@ def create_app(test_config=None):
         new_category = payload.get("category")
         new_difficulty = payload.get("difficulty")
 
-        if (payload, new_question, new_answer, new_category, new_difficulty) == None:
+        if not new_question or not new_answer or not new_category or not new_difficulty:
             abort(400)
         try:
             question = Question(

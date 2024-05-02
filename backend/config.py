@@ -17,3 +17,4 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://{}:{}@{}/{}'.format(
 )
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+QUESTIONS_PER_PAGE = 10
