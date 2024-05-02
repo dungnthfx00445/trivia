@@ -73,6 +73,46 @@ You will need to provide detailed documentation of your API endpoints including 
 
 ### Documentation Example
 
+`400 -- Bad reqeust`
+
+```json
+{
+  "success": false,
+  "error": 400,
+  "message": "Bad request"
+}
+```
+
+`404 -- Not found`
+
+```json
+{
+  "success": false,
+  "error": 404,
+  "message": "Not found"
+}
+```
+
+`422 -- Not processable`
+
+```json
+{
+  "success": false,
+  "error": 422,
+  "message": "Not processable"
+}
+```
+
+`500 -- Internal server error`
+
+```json
+{
+  "success": false,
+  "error": 500,
+  "message": "Internal server error"
+}
+```
+
 `GET '/api/v1.0/categories'`
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category

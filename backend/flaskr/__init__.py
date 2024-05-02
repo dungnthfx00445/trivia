@@ -46,13 +46,17 @@ def create_app(test_config=None):
 
     @app.route("/categories", methods=["GET"])
     def categories():
-        categories = db.session.query(Category).order_by(Category.id).all()
-        return jsonify({
-            'categories': {
-                category.id: category.type for category in categories
-            },
-            'success': True
-        })
+        try:
+            categories = db.session.query(Category).order_by(Category.id).all()
+            return jsonify({
+                'categories': {
+                    category.id: category.type for category in categories
+                },
+                'success': True
+            })
+        except:
+            abort(422)
+        
         
     @app.route("/questions", methods=["GET"])
     def questions():
@@ -116,15 +120,11 @@ def create_app(test_config=None):
 
     @app.route("/questions/search",  methods = ["POST"])
     def search_questions():
-        search_term = request.args.get("searchTerm")
+        search_term = request.get_json().get("searchTerm")
         selection = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
 
         if search_term is None:
-            return jsonify({
-            "questions": [],
-            "total_questions": 0,
-            "success": True
-        })
+            abort(404)
         search_questions = pagination_questions(request, selection)
         return jsonify({
             "questions": list(search_questions),
@@ -185,11 +185,11 @@ def create_app(test_config=None):
         }), 404
     
     @app.errorhandler(422)
-    def unprocessable(error):
+    def not_processable(error):
         return jsonify({
             "success": False,
             "error": 422,
-            "message": "Unprocessable"
+            "message": "Not processable"
         }), 422
 
     @app.errorhandler(400)
